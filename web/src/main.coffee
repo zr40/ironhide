@@ -4,6 +4,7 @@ requirejs.config
 		underscore: 'lib/underscore'
 		jquery: 'lib/jquery'
 		handlebars: 'lib/handlebars.runtime'
+		'socket.io': 'socket.io/socket.io'
 
 	shim:
 		backbone:
@@ -16,10 +17,17 @@ requirejs.config
 			exports: 'Handlebars.templates'
 		underscore:
 			exports: '_'
+		'socket.io':
+			exports: 'io'
 
 requirejs [
 	'queryview'
 	'jquery'
-], (QueryView, $) ->
+	'socket.io'
+], (QueryView, $, io) ->
+
+	# temporary HACK
+	window.socket = io.connect()
+
 	new QueryView
 		el: $ 'div'

@@ -27,20 +27,9 @@ define [
 			sql.focus()
 
 			submit = ->
-				$.ajax
-					type: 'POST'
-					url: 'query'
-					data:
-						sql: sql.val()
-					dataType: 'json'
-					error: (xhr, errorType, error) ->
-						alert "Error: #{errorType}\n\n#{error}"
-						console.log error
-					success: (result) ->
-						# console.log result
-
-						resultView.setResult result
-						explainView.setExplain result.explain
+				window.socket.emit 'query', sql.val(), (result) ->
+					resultView.setResult result
+					explainView.setExplain result.explain
 
 			execute.click submit
 
