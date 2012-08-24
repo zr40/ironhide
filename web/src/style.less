@@ -1,0 +1,164 @@
+* {
+	box-sizing: border-box;
+}
+
+@db-width: 450px;
+
+.sql {
+	position: absolute;
+	left: 0;
+	right: @db-width;
+	top: 0;
+	bottom: 50%;
+	background: #eee;
+
+	font-family: Menlo, Consolas, monospace;
+	font-size: 14px;
+	padding: 1em;
+	line-height: 1.4em;
+
+	resize: none;
+	border: none;
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.execute {
+	position: absolute;
+	bottom: 50%;
+	right: @db-width;
+	margin-right: 1em;
+	font-size: 20px;
+	margin-bottom: 1em;
+}
+
+.results, .database {
+	overflow: auto;
+	font-family: Lucida Grande, Segoe UI, sans-serif;
+	font-size: 10px;
+
+	white-space: pre-wrap;
+
+	table {
+		border-collapse: collapse;
+	}
+
+	tr:nth-child(odd) {
+		background-color: #eee;
+	}
+
+	tr:first-child {
+		font-size: 12px;
+		background-color: #ccc;
+	}
+
+	th, td {
+		padding-left: 5px;
+		padding-right: 5px;
+		padding-top: 3px;
+		padding-bottom: 3px;
+	}
+
+	.error {
+		padding: 16px;
+		font-size: 16px;
+	}
+
+	.notice {
+		font-size: 12px;
+		padding-left: 16px;
+		margin-top: 16px;
+		margin-bottom: -8px;
+	}
+}
+
+.database {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 50%;
+	width: @db-width;
+
+	table {
+		width: 100%;
+	}
+}
+
+.results {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 50%;
+	bottom: 0;
+
+	td, th {
+		min-width: 100px;
+	}
+}
+
+.explain {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	right: 0;
+	bottom: 0;
+	overflow: auto;
+
+	@labelWidth: 128px;
+	@iconSize: 50px;
+
+	.icon {
+		position: absolute;
+		width: @iconSize * 1;
+		height: @iconSize;
+		margin-left: -@iconSize;
+	}
+	.label {
+		position: absolute;
+		width: @labelWidth;
+		text-align: center;
+		margin-left: (-@labelWidth - @iconSize) / 2;
+		margin-top: @iconSize;
+		font-family: Lucida Grande, Segoe UI, sans-serif;
+		font-size: 12px;
+	}
+
+	canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	@detailWidth: 207px;
+
+	.detail {
+		position: absolute;
+		margin-top: @iconSize + 15px;
+		margin-left: -(@detailWidth + @iconSize) / 2;
+		font-family: Lucida Grande, Segoe UI, sans-serif;
+		font-size: 11px;
+		min-width: @detailWidth;
+		border: 1px solid #cc9;
+		padding: 0.3em;
+		background: #ffc;
+		display: none;
+		z-index: 1;
+
+		table {
+			border-collapse: collapse;
+		}
+		th {
+			text-align: left;
+			padding-right: 4px;
+		}
+		th, td {
+			white-space: pre;
+		}
+	}
+
+	.hover:hover .detail {
+		display: block;
+	}
+}

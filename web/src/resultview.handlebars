@@ -1,0 +1,13 @@
+{{#each notices}}<div class=notice>{{this}}</div>{{/each}}<table>
+	<tr>
+		{{#each columns}}
+		<th>{{this}}</th>
+		{{/each}}
+	</tr>
+	{{#each rows}}
+	<tr>
+		{{#eachValue this}}
+		<td>{{this}}</td>
+		{{/eachValue}}
+	</tr>{{/each}}
+</table>
