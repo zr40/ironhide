@@ -2,18 +2,13 @@ express = require 'express'
 io = require 'socket.io'
 pg = require 'pg'
 
-db = new pg.Client 'tcp://zr40@localhost/steamstats'
-db.connect()
+#notices = []
 
-notices = []
-
-db.on 'notice', (notice) ->
-	notices.push notice.message
-
-db.query 'SET timezone=utc'
+#db.on 'notice', (notice) ->
+#	notices.push notice.message
 
 app = express()
-server = app.listen 3000, '127.0.0.1'
+server = app.listen 3000
 io = io.listen server
 io.set 'log level', 1
 
@@ -22,8 +17,16 @@ app.use express.bodyParser()
 
 
 io.sockets.on 'connection', (socket) ->
-	socket.on 'query', (sql, callback) ->
+	socket.on 'connect', (params, callback) ->
+		db = new pg.Client params
+		db.connect()
+		db.query 'SET timezone=utc'
 
+		socket.db = db
+		callback()
+
+	socket.on 'query', (sql, callback) ->
+		db = socket.db
 		query = db.query sql, (err, result) ->
 			if err
 				callback

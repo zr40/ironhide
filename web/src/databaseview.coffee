@@ -29,5 +29,5 @@ define [
 				WHERE tables.table_schema NOT IN ('pg_catalog', 'information_schema')
 				ORDER BY "table"
 			'''
-			window.socket.emit 'query', sql, (result) =>
+			@options.socket.emit 'query', sql, (result) =>
 				@result.setResult result

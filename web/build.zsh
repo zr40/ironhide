@@ -3,7 +3,7 @@ set -e
 
 cd ../../web
 
-rsync -ru --delete src/ build/
+rsync -r --inplace --delete src/ build/
 
 pushd build
 
@@ -15,4 +15,4 @@ wait
 rm *.coffee *.handlebars *.less
 
 popd
-rsync -ru --delete build/ public/
+rsync -r --inplace --delete build/ public/

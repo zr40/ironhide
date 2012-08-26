@@ -21,13 +21,9 @@ requirejs.config
 			exports: 'io'
 
 requirejs [
-	'queryview'
+	'connectview'
 	'jquery'
-	'socket.io'
-], (QueryView, $, io) ->
+], (ConnectView, $) ->
 
-	# temporary HACK
-	window.socket = io.connect()
-
-	new QueryView
+	new ConnectView
 		el: $ 'div'

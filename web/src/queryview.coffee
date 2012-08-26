@@ -14,7 +14,7 @@ define [
 		render: ->
 			@$el.html templates.queryview()
 
-			sql = @$el.find '.sql'
+			sql = @$el.find '.sql textarea'
 			execute = @$el.find '.execute'
 
 			explainView = new ExplainView
@@ -23,11 +23,12 @@ define [
 				el: @$el.find '.results'
 			databaseView = new DatabaseView
 				el: @$el.find '.database'
+				socket: @options.socket
 
 			sql.focus()
 
-			submit = ->
-				window.socket.emit 'query', sql.val(), (result) ->
+			submit = =>
+				@options.socket.emit 'query', sql.val(), (result) ->
 					resultView.setResult result
 					explainView.setExplain result.explain
 
