@@ -16,7 +16,6 @@ define [
 
 		refresh: =>
 			sql = '''
-				ANALYZE;
 				SELECT
 				tables.table_schema || '.' || tables.table_name AS "table",
 				pg_stat_user_tables.n_live_tup AS rows,
