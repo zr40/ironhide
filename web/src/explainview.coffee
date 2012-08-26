@@ -116,7 +116,7 @@ define [
 
 			@$el.append hoverdiv
 
-			thickness = Math.log(node['Total Cost']) / Math.LN2 / 2
+			thickness = Math.log(1 + node['Total Cost']) / Math.LN2 / 2
 
 			toX = (@x - 1) * gridWidth
 			toY = targetY * gridHeight + iconSize / 2
