@@ -8,7 +8,7 @@ pg = require 'pg'
 #	notices.push notice.message
 
 app = express()
-server = app.listen 3000
+server = app.listen 3000, '127.0.0.1'
 io = io.listen server
 io.set 'log level', 1
 
@@ -24,6 +24,9 @@ io.sockets.on 'connection', (socket) ->
 
 		socket.db = db
 		callback()
+
+	socket.on 'disconnect', ->
+		socket.db.end()
 
 	socket.on 'query', (sql, callback) ->
 		db = socket.db
