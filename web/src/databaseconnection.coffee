@@ -5,5 +5,6 @@ define [
 		constructor: (@settings) ->
 
 		connect: (callback) ->
-			@socket = io.connect()
+			@socket = io.connect undefined,
+				'reconnect': false
 			@socket.emit 'connect', @settings, callback
