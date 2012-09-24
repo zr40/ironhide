@@ -19,14 +19,22 @@ app.use express.bodyParser()
 io.sockets.on 'connection', (socket) ->
 	socket.on 'connect', (params, callback) ->
 		db = new pg.Client params
-		db.connect()
-		db.query 'SET timezone=utc'
+		db.on 'error', (err) ->
+			console.log err
+			callback
+				message: err.toString()
+				data: err
+		db.on 'connect', ->
+			console.log 'connect'
+			db.query 'SET timezone=utc'
 
-		socket.db = db
-		callback()
+			socket.db = db
+			callback()
+
+		db.connect()
 
 	socket.on 'disconnect', ->
-		socket.db.end()
+		socket.db?.end()
 
 	socket.on 'query', (sql, callback) ->
 		db = socket.db

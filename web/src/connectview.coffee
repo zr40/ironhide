@@ -7,13 +7,13 @@ define [
 
 	class ConnectView extends Backbone.View
 		initialize: ->
+			@render()
+
 			if window.ironhide?.params
 				@connect window.ironhide.params
-			else
-				@render()
 
 		render: ->
-			@$el.html templates.connectview()
+			@$el.html templates.connectview(window.ironhide?.params || {})
 
 			@$el.find('form').submit (e) =>
 				e.preventDefault()
@@ -27,8 +27,12 @@ define [
 
 		connect: (params) ->
 			db = new DatabaseConnection params
-			db.connect =>
-				new MainView
-					el: @$el
-					params: params
-					socket: db.socket
+			db.connect (err) =>
+				if err
+					db.socket.disconnect()
+					alert err.message
+				else
+					new MainView
+						el: @$el
+						params: params
+						socket: db.socket
