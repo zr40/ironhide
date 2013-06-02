@@ -15,6 +15,16 @@ define [
 			@$el.html templates.queryview()
 
 			sql = @$el.find '.sql textarea'
+			codeMirror = CodeMirror.fromTextArea sql[0], {
+				mode: 'text/x-plsql'
+				tabSize: 2
+				lineNumbers: yes
+				indentWithTabs: yes
+			}
+
+
+
+			codeMirror.addKeyMap
 			execute = @$el.find '.execute'
 
 			explainView = new ExplainView
@@ -28,9 +38,14 @@ define [
 			sql.focus()
 
 			submit = =>
-				@options.socket.emit 'query', sql.val(), (result) ->
+				@options.socket.emit 'query', codeMirror.getValue(), (result) ->
 					resultView.setResult result
-					explainView.setExplain result.explain
+					explainView.setExplain result.explain, result.duration
+
+			codeMirror.addKeyMap {
+				'Cmd-Enter': submit,
+				'Ctrl-Enter': submit,
+			}
 
 			execute.click submit
 

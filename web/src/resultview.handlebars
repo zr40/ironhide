@@ -1,13 +1,12 @@
 {{#each notices}}<div class=notice>{{this}}</div>{{/each}}<table>
 	<tr>
 		{{#each columns}}
-		<th>{{this}}</th>
+			<th>{{this}}
 		{{/each}}
-	</tr>
 	{{#each rows}}
 	<tr>
 		{{#eachValue this}}
-		<td>{{this}}</td>
+			<td>{{this}}
 		{{/eachValue}}
-	</tr>{{/each}}
+	{{/each}}
 </table>

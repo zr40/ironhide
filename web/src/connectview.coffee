@@ -11,6 +11,7 @@ define [
 
 			if window.ironhide?.params
 				@connect window.ironhide.params
+				delete window.ironhide
 
 		render: ->
 			@$el.html templates.connectview(window.ironhide?.params || {})

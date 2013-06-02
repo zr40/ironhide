@@ -38,19 +38,25 @@ io.sockets.on 'connection', (socket) ->
 
 	socket.on 'query', (sql, callback) ->
 		db = socket.db
+
+		start = process.hrtime()
 		query = db.query sql, (err, result) ->
+			duration = process.hrtime(start)
+
 			if err
 				callback
 					error:
 						message: err.toString()
 						data: err
+						duration: duration[0] + (duration[1] / 1000000000)
 					notices: notices
 				notices = []
 			else
-				db.query "EXPLAIN (FORMAT JSON) #{sql}", (err, explainResult) ->
+				db.query "explain (format json, analyze true) #{sql}", (err, explainResult) ->
 					explain = if err then null else JSON.parse explainResult.rows[0]['QUERY PLAN']
 					callback
 						explain: explain
 						rows: result.rows
 						notices: notices
+						duration: duration[0] + (duration[1] / 1000000000)
 					notices = []

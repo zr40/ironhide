@@ -9,7 +9,7 @@ pushd build
 
 coffee -c *.coffee &
 handlebars -k columns *.handlebars -f templates.js &
-lessc -x style.less style.css &
+lessc style.less > style.css &
 wait
 
 rm *.coffee *.handlebars *.less
