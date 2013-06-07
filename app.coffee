@@ -20,12 +20,10 @@ io.sockets.on 'connection', (socket) ->
 	socket.on 'connect', (params, callback) ->
 		db = new pg.Client params
 		db.on 'error', (err) ->
-			console.log err
 			callback
 				message: err.toString()
 				data: err
 		db.on 'connect', ->
-			console.log 'connect'
 			db.query 'SET timezone=utc'
 
 			socket.db = db
@@ -42,7 +40,6 @@ io.sockets.on 'connection', (socket) ->
 		start = process.hrtime()
 		query = db.query sql, (err, result) ->
 			duration = process.hrtime(start)
-
 			if err
 				callback
 					error:
