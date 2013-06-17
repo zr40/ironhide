@@ -12,7 +12,7 @@ server = app.listen 3000, '127.0.0.1'
 io = io.listen server
 io.set 'log level', 1
 
-app.use express.static 'web/public'
+app.use express.static 'src'
 app.use express.bodyParser()
 
 

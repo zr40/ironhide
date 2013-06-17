@@ -1,0 +1,46 @@
+<!doctype html>
+<title>IronHide</title>
+<link rel=stylesheet/less href=style.less>
+<script src=lib/codemirror.js></script>
+<script src=lib/sql.js></script>
+<script>
+less = {
+	env: 'development'
+}
+var require = {
+	paths: {
+		'coffee-script': 'lib/coffee-script',
+		'socket.io': 'socket.io/socket.io',
+		backbone: 'lib/backbone',
+		cs: 'lib/cs',
+		Handlebars: 'lib/handlebars',
+		hbs: 'lib/hbs',
+		i18nprecompile: 'lib/i18nprecompile',
+		jquery: 'lib/jquery',
+		json2: 'lib/json2',
+		underscore: 'lib/underscore',
+	},
+	shim: {
+		backbone: {
+			deps: ['underscore', 'jquery'],
+			exports: 'Backbone',
+		},
+		Handlebars: {
+			exports: 'Handlebars',
+		},
+		underscore: {
+			exports: '_',
+		},
+		'socket.io': {
+			exports: 'io',
+		},
+	},
+	hbs: {
+		disableI18n: true,
+	},
+
+}
+</script>
+<script src=lib/less.js></script>
+<script data-main=cs!main src=lib/require.js></script>
+<div></div>

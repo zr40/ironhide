@@ -1,0 +1,272 @@
+@import url(http://fonts.googleapis.com/css?family=Source+Code+Pro);
+@import 'lib/bootstrap/bootstrap.less';
+@import 'lib/codemirror.css';
+
+@db-width: 450px;
+
+@navbar-height: 41px;
+
+.view {
+	line-height: normal; // remove bootstrap line-height
+}
+
+.navbar .brand {
+	margin-left: 0;
+	cursor: default;
+}
+
+div.navbar {
+	a {
+		cursor: pointer;
+	}
+}
+
+#connect {
+	@width: 450px;
+	@height: 320px;
+
+	position: absolute;
+	top: 35%;
+	left: 50%;
+	margin-top: @height / -2;
+	margin-left: @width / -2;
+	padding-top: 30px;
+
+	width: @width;
+	height: @height;
+	border: 1px solid rgb(221,221,221);
+	border-radius: 4px;
+}
+
+.sql {
+	position: absolute;
+	left: 0;
+	right: @db-width;
+	top: @navbar-height;
+	bottom: 60%;
+
+	textarea {
+		background: #eee;
+		-moz-box-sizing: border-box; // still needed as of firefox 14
+		box-sizing: border-box;
+
+		font-family: Menlo, Monaco, Consolas, Source Code Pro, Courier New, monospace;
+		font-size: 14px;
+		padding: 1em;
+		line-height: 1.4em;
+
+		resize: none;
+		border: none;
+		-webkit-appearance: none;
+		margin: 0;
+
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.CodeMirror {
+	background: #eee;
+	-moz-box-sizing: border-box; // still needed as of firefox 14
+	box-sizing: border-box;
+
+	font-family: Menlo, Monaco, Consolas, Source Code Pro, Courier New, monospace;
+	font-size: 14px;
+	line-height: 1.4em;
+
+	resize: none;
+	border: none;
+	-webkit-appearance: none;
+	margin: 0;
+
+	width: 100%;
+	height: 100%;
+
+}
+
+.execute {
+	position: absolute;
+	bottom: 60%;
+	right: @db-width;
+	margin-right: 1em;
+	margin-bottom: 1em;
+	z-index: 3;
+}
+
+.results, .database, .tablelist {
+	overflow: auto;
+	font-family: Lucida Grande, Segoe UI, sans-serif;
+	font-size: 10px;
+
+	table {
+		border-collapse: collapse;
+	}
+
+	tr:nth-child(odd) {
+		background-color: #eee;
+	}
+
+	tr:first-child {
+		font-size: 12px;
+		background-color: #ccc;
+	}
+
+	th, td {
+		padding-left: 5px;
+		padding-right: 5px;
+		padding-top: 3px;
+		padding-bottom: 3px;
+	}
+
+	.error {
+		padding: 16px;
+		font-size: 16px;
+	}
+
+	.notice {
+		font-size: 12px;
+		padding-left: 16px;
+		margin-top: 16px;
+		margin-bottom: -8px;
+	}
+}
+
+.tablelist {
+	font-size: 12px;
+}
+
+.database {
+	position: absolute;
+	top: @navbar-height;
+	right: 0;
+	bottom: 60%;
+	width: @db-width;
+
+	table {
+		width: 100%;
+	}
+}
+
+.results {
+	position: absolute;
+	top: 40%;
+	left: 0;
+	right: 70%;
+	bottom: 0;
+
+	td, th {
+		min-width: 60px;
+	}
+}
+
+.explain {
+	position: absolute;
+	top: 40%;
+	left: 30%;
+	right: 0;
+	bottom: 0;
+	overflow: auto;
+	color: #000;
+
+	cursor: default;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	user-select: none;
+
+	@labelWidth: 144px;
+	@iconSize: 50px;
+
+	.icon {
+		position: absolute;
+		width: @iconSize * 1;
+		height: @iconSize;
+		margin-left: -@iconSize;
+	}
+	.label {
+		position: absolute;
+		width: @labelWidth;
+		text-align: center;
+		margin-left: (-@labelWidth - @iconSize) / 2;
+		margin-top: @iconSize;
+		font-family: Lucida Grande, Segoe UI, sans-serif;
+		font-size: 10px;
+		white-space: pre;
+
+		&:first-line {
+			font-size: 12px;
+		}
+	}
+
+	canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	#timeCanvas {
+		display: none;
+	}
+
+	@detailWidth: 207px;
+
+	.detail {
+		position: absolute;
+		margin-top: @iconSize + 15px;
+		margin-left: -(@detailWidth + @iconSize) / 2;
+		font-family: Lucida Grande, Segoe UI, sans-serif;
+		font-size: 11px;
+		min-width: @detailWidth;
+		border: 1px solid #cc9;
+		padding: 0.3em;
+		background: #ffc;
+		display: none;
+		z-index: 1;
+
+		table {
+			border-collapse: collapse;
+		}
+		th {
+			text-align: left;
+			padding-right: 4px;
+		}
+		th, td {
+			white-space: pre;
+		}
+
+	}
+
+	.duration {
+		position: absolute;
+		top: 0;
+		left: 20px;
+		font-size: 10px;
+		&:after {
+			content: ' sec';
+		}
+	}
+
+	#planRadio {
+		top: 80px;
+	}
+	#timeRadio {
+		top: 96px;
+	}
+
+	#planRadio, #timeRadio {
+		position: absolute;
+		font-size: 11px;
+		left: 6px;
+
+		input {
+			position: relative;
+			top: -3px;
+			left: -4px;
+		}
+	}
+
+	.hover:hover .detail {
+		display: block;
+	}
+}
