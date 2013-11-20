@@ -49,7 +49,7 @@ io.sockets.on 'connection', (socket) ->
 					notices: notices
 				notices = []
 			else
-				db.query "explain (format json, analyze true) #{sql}", (err, explainResult) ->
+				db.query "explain (format json, verbose true) #{sql}", (err, explainResult) ->
 					explain = if err then null else JSON.parse explainResult.rows[0]['QUERY PLAN']
 					callback
 						explain: explain
@@ -57,3 +57,24 @@ io.sockets.on 'connection', (socket) ->
 						notices: notices
 						duration: duration[0] + (duration[1] / 1000000000)
 					notices = []
+
+	socket.on 'explainOnly', (sql, callback) ->
+		db = socket.db
+
+		query = db.query "explain (format json, verbose true) #{sql}", (err, explainResult) ->
+			if err
+				callback
+					error:
+						message: err.toString()
+						data: err
+						duration: 0
+					notices: notices
+				notices = []
+			else
+				explain = JSON.parse explainResult.rows[0]['QUERY PLAN']
+				callback
+					explain: explain
+					rows: []
+					notices: notices
+					duration: 0
+				notices = []

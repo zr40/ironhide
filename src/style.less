@@ -93,6 +93,15 @@ div.navbar {
 	z-index: 3;
 }
 
+.plan {
+	position: absolute;
+	bottom: 60%;
+	right: @db-width + 85px;
+	margin-right: 1em;
+	margin-bottom: 1em;
+	z-index: 3;
+}
+
 .results, .database, .tablelist {
 	overflow: auto;
 	font-family: Lucida Grande, Segoe UI, sans-serif;
@@ -223,6 +232,7 @@ div.navbar {
 		background: #ffc;
 		display: none;
 		z-index: 1;
+		max-width: @detailWidth * 3;
 
 		table {
 			border-collapse: collapse;
@@ -232,7 +242,13 @@ div.navbar {
 			padding-right: 4px;
 		}
 		th, td {
+			vertical-align: top;
+		}
+		th {
 			white-space: pre;
+		}
+		td {
+			white-space: pre-wrap;
 		}
 
 	}

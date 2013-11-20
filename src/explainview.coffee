@@ -6,6 +6,12 @@ define [
 		initialize: ->
 			@render
 
+		truncate_array = (arr) ->
+			return arr if arr.length <= 5
+			first = arr.slice(0, 5)
+			first.push('…')
+			first
+
 		render: ->
 			@$el.html '<canvas id=planCanvas></canvas><canvas id=timeCanvas></canvas>'
 
@@ -130,6 +136,7 @@ define [
 			]
 			'Merge Join': (node) -> [
 				"Merge#{[" #{node['Join Type']}"]} Join"
+				node['Merge Cond']
 			]
 			'Seq Scan': (node) -> [
 				node['Relation Name']
@@ -138,7 +145,7 @@ define [
 			]
 			'Sort': (node) -> [
 				'Sort'
-				node['Sort Key']
+				truncate_array node['Sort Key']
 			]
 			'Subquery Scan': (node) -> [
 				'Subquery Scan'

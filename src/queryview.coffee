@@ -23,7 +23,8 @@ define [
 			}
 
 			codeMirror.addKeyMap
-			execute = @$el.find '.execute'
+			executeButton = @$el.find '.execute'
+			planButton = @$el.find '.plan'
 
 			explainView = new ExplainView
 				el: @$el.find '.explain'
@@ -35,19 +36,25 @@ define [
 
 			sql.focus()
 
-			submit = =>
+			execute = =>
 				@options.socket.emit 'query', codeMirror.getValue(), (result) ->
 					resultView.setResult result
 					explainView.setExplain result.explain, result.duration
 
+			plan = =>
+				@options.socket.emit 'explainOnly', codeMirror.getValue(), (result) ->
+					resultView.setResult result
+					explainView.setExplain result.explain, result.duration
+
 			codeMirror.addKeyMap {
-				'Cmd-Enter': submit,
-				'Ctrl-Enter': submit,
+				'Cmd-Enter': plan,
+				'Ctrl-Enter': plan,
 			}
 
-			execute.click submit
+			executeButton.click execute
+			planButton.click plan
 
 			sql.on 'keypress', (evt) ->
 				if evt.keyCode is 13 and (evt.metaKey or evt.ctrlKey)
 					evt.preventDefault()
-					submit()
+					plan()
