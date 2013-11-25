@@ -225,7 +225,7 @@ define [
 				ctx.fill()
 				ctx.stroke()
 
-			drawLine node['Actual Total Time'] * 16, @timeCtx if node['Actual Total Time']
+			drawLine node['Actual Total Time'] * 16 * node['Actual Loops'], @timeCtx if node['Actual Total Time']
 			drawLine node['Total Cost'], @planCtx
 
 			thisY = @y
