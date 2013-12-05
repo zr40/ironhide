@@ -7,10 +7,10 @@ define [
 			@render
 
 		truncate_array = (arr) ->
-			return arr if arr.length <= 5
+			return arr.join ', ' if arr.length <= 5
 			first = arr.slice(0, 5)
-			first.push('…')
-			first
+			first.push '…'
+			first.join ', '
 
 		render: ->
 			@$el.html '<canvas id=planCanvas></canvas><canvas id=timeCanvas></canvas>'
@@ -95,6 +95,7 @@ define [
 			'Sort': 'sort'
 			'Subquery Scan': 'subplan'
 			'Unique': 'unique'
+			'Values Scan': 'result'
 			'WindowAgg': 'window_aggregate'
 
 		textFns =
@@ -137,6 +138,10 @@ define [
 			'Merge Join': (node) -> [
 				"Merge#{[" #{node['Join Type']}"]} Join"
 				node['Merge Cond']
+			]
+			'Nested Loop': (node) -> [
+				'Nested Loop'
+				"filter: #{node['Join Filter']}" if node['Join Filter']
 			]
 			'Seq Scan': (node) -> [
 				node['Relation Name']
@@ -189,7 +194,12 @@ define [
 			detail.append table
 
 			for item of node
-				table.append "<tr><th>#{item}<td>#{node[item]}" unless item is 'Plans'
+				continue if item is 'Plans'
+
+				value = node[item]
+				value = value.join '\n' if value instanceof Array
+
+				table.append "<tr><th>#{item}<td>#{value}" unless item is 'Plans'
 			hoverdiv.append detail
 
 			text = $ '<div>'

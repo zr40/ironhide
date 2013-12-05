@@ -33,6 +33,6 @@ define [
 				window.open("/").ironhide =
 					params: @options.params
 
-			toolbar.find('.connectedto a').text "#{@options.params.host}/#{@options.params.database}"
+			toolbar.find('.connectedto a').text "#{@options.params.host}:#{@options.params.port}/#{@options.params.database}"
 
 			toolbar.find('.query').click()

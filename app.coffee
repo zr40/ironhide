@@ -49,7 +49,7 @@ io.sockets.on 'connection', (socket) ->
 					notices: notices
 				notices = []
 			else
-				db.query "explain (format json, verbose true) #{sql}", (err, explainResult) ->
+				db.query "explain (analyze true, format json, verbose true) #{sql}", (err, explainResult) ->
 					explain = if err then null else JSON.parse explainResult.rows[0]['QUERY PLAN']
 					callback
 						explain: explain
