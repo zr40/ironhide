@@ -77,6 +77,7 @@ define [
 		types =
 			'Append': 'append'
 			'Aggregate': 'aggregate'
+			'BitmapAnd': 'hash_setop_intersect'
 			'Bitmap Heap Scan': 'bmp_heap'
 			'Bitmap Index Scan': 'bmp_index'
 			'CTE Scan': 'cte_scan'
