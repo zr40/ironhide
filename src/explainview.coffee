@@ -17,25 +17,23 @@ define [
 
 			return unless @explain
 
-			@x = 1
-			@y = 0
+			@usedSpace = []
+			@layoutPlan item.Plan for item in @explain
 
 			x = 0
-			y = 1
-			maxX = 1
-			findGridDimensions = (node, depth) ->
-				if x != depth
-					x = depth
-					y++
+			y = 0
+			findGridDimensions = (node) ->
+				x = node.x if node.x > x
+				y = node.y if node.y > y
 
-				thisY = y
-				x++
-				maxX = x if x > maxX
-				findGridDimensions plan, depth + 1, thisY for plan in node.Plans if node.Plans
+				findGridDimensions plan for plan in node.Plans if node.Plans
+
 			findGridDimensions item.Plan, 0 for item in @explain
 
+			y += 1
+
 			@planCanvas = @$el.find('#planCanvas')
-			@planCanvas[0].width = maxX * gridWidth
+			@planCanvas[0].width = x * gridWidth
 			@planCanvas[0].height = y * gridHeight
 
 			@planCtx = @planCanvas[0].getContext '2d'
@@ -43,7 +41,7 @@ define [
 			@planCtx.lineWidth = 0.5
 
 			@timeCanvas = @$el.find('#timeCanvas')
-			@timeCanvas[0].width = maxX * gridWidth
+			@timeCanvas[0].width = x * gridWidth
 			@timeCanvas[0].height = y * gridHeight
 
 			@timeCtx = @timeCanvas[0].getContext '2d'
@@ -165,13 +163,32 @@ define [
 		iconSize = 50
 		arrowMid = (gridWidth - iconSize) / 2
 
-		renderExplain: (node, depth, targetY) ->
-			if @x != depth
-				@x = depth
-				@y++
+		layoutPlan: (node, x=1, y=0) ->
+			return true if @usedSpace[y] <= x
 
-			targetY ?= @y
+			if node.Plans
+				childY = y
+				firstChild = true
 
+				for plan in node.Plans
+					collision = @layoutPlan plan, x + 1, childY
+
+					return true if collision and firstChild
+
+					while collision
+						childY += 1
+						collision = @layoutPlan plan, x + 1, childY
+
+					firstChild = false
+
+			@usedSpace[y] = x
+
+			node.x = x
+			node.y = y
+
+			false
+
+		renderExplain: (node, depth, parentY=0) ->
 			img = $ '<img>'
 
 			type = types[node['Node Type']] || 'unknown'
@@ -181,21 +198,21 @@ define [
 			img.attr 'src', "img/ex_#{type}.png"
 			img.addClass 'icon'
 			img.css
-				left: @x * gridWidth
-				top: @y * gridHeight
+				left: node.x * gridWidth
+				top: node.y * gridHeight
 			hoverdiv.append img
 
 			detail = $ '<div>'
 			detail.addClass 'detail'
 			detail.css
-				left: @x * gridWidth
-				top: @y * gridHeight
+				left: node.x * gridWidth
+				top: node.y * gridHeight
 
 			table = $ '<table>'
 			detail.append table
 
 			for item of node
-				continue if item is 'Plans'
+				continue if item is 'Plans' or item is 'x' or item is 'y'
 
 				value = node[item]
 				value = value.join '\n' if value instanceof Array
@@ -210,17 +227,17 @@ define [
 			text.text fn(node).join('\n').replace(/\n\n+/g, '\n').replace(/\(public\./g, '(').replace(/\ public\./g, ' ').replace(/\npublic./g, '\n')
 			text.addClass 'label'
 			text.css
-				left: @x * gridWidth
-				top: @y * gridHeight
+				left: node.x * gridWidth
+				top: node.y * gridHeight
 			hoverdiv.append text
 
 			@$el.append hoverdiv
 
-			toX = (@x - 1) * gridWidth
-			toY = targetY * gridHeight + iconSize / 2
+			toX = (node.x - 1) * gridWidth
+			toY = parentY * gridHeight + iconSize / 2
 
-			fromX = @x * gridWidth - iconSize
-			fromY = @y * gridHeight + iconSize / 2
+			fromX = node.x * gridWidth - iconSize
+			fromY = node.y * gridHeight + iconSize / 2
 
 			drawLine = (value, ctx) ->
 				thickness = Math.log(1 + value) / Math.LN2 / 2
@@ -239,10 +256,7 @@ define [
 			drawLine node['Actual Total Time'] * 16 * node['Actual Loops'], @timeCtx if node['Actual Total Time']
 			drawLine node['Total Cost'], @planCtx
 
-			thisY = @y
-
-			@x++
-			@renderExplain plan, depth + 1, thisY for plan in node.Plans if node.Plans
+			@renderExplain plan, depth + 1, node.y for plan in node.Plans if node.Plans
 
 		setExplain: (@explain, @duration) ->
 			@render()
