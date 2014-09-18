@@ -12,6 +12,13 @@ define [
 			first.push '…'
 			first.join ', '
 
+		truncate = (str) ->
+			return str unless str
+
+			if str.length > 32
+				return str[...32] + '…'
+			str
+
 		render: ->
 			@$el.html '<canvas id=planCanvas></canvas><canvas id=timeCanvas></canvas>'
 
@@ -79,11 +86,16 @@ define [
 			'Bitmap Heap Scan': 'bmp_heap'
 			'Bitmap Index Scan': 'bmp_index'
 			'CTE Scan': 'cte_scan'
+			'Except All': 'hash_setop_except_all'
+			'Except': 'hash_setop_except'
+			'Function Scan': 'result'
 			'Group': 'group'
 			'Hash Join': 'join'
 			'Hash': 'hash'
 			'Index Only Scan': 'index_scan'
 			'Index Scan': 'index_scan'
+			'Intersect All': 'hash_setop_intersect_all'
+			'Intersect': 'hash_setop_intersect'
 			'Limit': 'limit'
 			'Materialize': 'materialize'
 			'Merge Append': 'merge'
@@ -104,57 +116,65 @@ define [
 			]
 			'Bitmap Heap Scan': (node) -> [
 				node['Relation Name']
-				node['Recheck Cond']
-				"filter: #{node['Filter']}" if node['Filter']
+				truncate node['Recheck Cond']
+				truncate "filter: #{node['Filter']}" if node['Filter']
 			]
 			'Bitmap Index Scan': (node) -> [
 				node['Index Name']
-				node['Index Cond']
+				truncate node['Index Cond']
 			]
 			'CTE Scan': (node) -> [
 				node['CTE Name']
 				"alias: #{node['Alias']}" unless node['Alias'] is node['CTE Name']
 			]
+			'Function Scan': (node) -> [
+				'Function Scan'
+				node['Function Call']
+				"filter: #{node['Filter']}" if node['Filter']
+			]
 			'Hash Join': (node) -> [
 				'Hash Join'
-				node['Hash Cond']
+				truncate node['Hash Cond']
 			]
 			'Index Scan': (node) -> [
 				node['Index Name']
 				"alias: #{node['Alias']}" unless node['Alias'] is node['Relation Name']
-				node['Index Cond']
-				"filter: #{node['Filter']}" if node['Filter']
+				truncate node['Index Cond']
+				truncate "filter: #{node['Filter']}" if node['Filter']
 			]
 			'Index Only Scan': (node) -> [
 				node['Index Name']
 				"alias: #{node['Alias']}" unless node['Alias'] is node['Relation Name']
-				node['Index Cond']
+				truncate node['Index Cond']
 			]
 			'Merge Append': (node) -> [
 				'Merge Append'
-				node['Sort Key']
+				truncate node['Sort Key']
 			]
 			'Merge Join': (node) -> [
 				"Merge#{[" #{node['Join Type']}"]} Join"
-				node['Merge Cond']
+				truncate node['Merge Cond']
 			]
 			'Nested Loop': (node) -> [
 				'Nested Loop'
-				"filter: #{node['Join Filter']}" if node['Join Filter']
+				truncate "filter: #{node['Join Filter']}" if node['Join Filter']
 			]
 			'Seq Scan': (node) -> [
 				node['Relation Name']
 				"alias: #{node['Alias']}" unless node['Alias'] is node['Relation Name']
-				node['Filter']
+				truncate node['Filter']
+			]
+			'SetOp': (node) -> [
+				node['Command']
 			]
 			'Sort': (node) -> [
 				'Sort'
-				truncate_array node['Sort Key']
+				truncate truncate_array node['Sort Key']
 			]
 			'Subquery Scan': (node) -> [
 				'Subquery Scan'
 				"alias: #{node['Alias']}"
-				node['Filter']
+				truncate node['Filter']
 			]
 
 		gridWidth = 165 # 128
@@ -191,7 +211,10 @@ define [
 		renderExplain: (node, depth, parentY=0) ->
 			img = $ '<img>'
 
-			type = types[node['Node Type']] || 'unknown'
+			if node['Node Type'] is 'SetOp'
+				type = types[node['Command']] || 'hash_setop_unknown'
+			else
+				type = types[node['Node Type']] || 'unknown'
 
 			hoverdiv = $ '<div class=hover>'
 
