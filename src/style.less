@@ -2,8 +2,6 @@
 @import 'lib/bootstrap/bootstrap.less';
 @import 'lib/codemirror.css';
 
-@db-width: 450px;
-
 @navbar-height: 41px;
 
 html {
@@ -45,7 +43,7 @@ div.navbar {
 .sql {
 	position: absolute;
 	left: 0;
-	right: @db-width;
+	right: 0;
 	top: @navbar-height;
 	bottom: 60%;
 
@@ -91,7 +89,7 @@ div.navbar {
 .execute {
 	position: absolute;
 	bottom: 60%;
-	right: @db-width;
+	right: 0;
 	margin-right: 1em;
 	margin-bottom: 1em;
 	z-index: 3;
@@ -100,13 +98,13 @@ div.navbar {
 .plan {
 	position: absolute;
 	bottom: 60%;
-	right: @db-width + 85px;
+	right: 85px;
 	margin-right: 1em;
 	margin-bottom: 1em;
 	z-index: 3;
 }
 
-.results, .database, .tablelist {
+.tablelist {
 	overflow: auto;
 	font-family: Lucida Grande, Segoe UI, sans-serif;
 	font-size: 10px;
@@ -131,51 +129,28 @@ div.navbar {
 		padding-bottom: 3px;
 	}
 
-	.error {
-		padding: 16px;
-		font-size: 16px;
-	}
+}
 
-	.notice {
-		font-size: 12px;
-		padding-left: 16px;
-		margin-top: 16px;
-		margin-bottom: -8px;
-	}
+.error {
+	padding: 16px;
+	font-size: 16px;
+}
+
+.notice {
+	font-size: 12px;
+	padding-left: 16px;
+	margin-top: 16px;
+	margin-bottom: -8px;
 }
 
 .tablelist {
 	font-size: 12px;
 }
 
-.database {
-	position: absolute;
-	top: @navbar-height;
-	right: 0;
-	bottom: 60%;
-	width: @db-width;
-
-	table {
-		width: 100%;
-	}
-}
-
-.results {
-	position: absolute;
-	top: 40%;
-	left: 0;
-	right: 70%;
-	bottom: 0;
-
-	td, th {
-		min-width: 60px;
-	}
-}
-
 .explain {
 	position: absolute;
 	top: 40%;
-	left: 30%;
+	left: 0;
 	right: 0;
 	bottom: 0;
 	overflow: auto;

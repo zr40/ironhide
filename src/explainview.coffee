@@ -1,7 +1,8 @@
 define [
 	'backbone'
 	'jquery'
-], (Backbone, $) ->
+	'hbs!template/resulterror'
+], (Backbone, $, error_template) ->
 	class ExplainView extends Backbone.View
 		initialize: ->
 			@render
@@ -20,6 +21,10 @@ define [
 			str
 
 		render: ->
+			if @error
+				@$el.html error_template @error
+				return
+
 			@$el.html '<canvas id=planCanvas></canvas><canvas id=timeCanvas></canvas>'
 
 			return unless @explain
@@ -60,7 +65,7 @@ define [
 			@$el.append "<div class=duration>#{Math.round(@duration * 100) / 100}</div>"
 
 			if @explain[0].Plan['Actual Total Time']
-				opt = $ '<input type=radio name=type checked>'
+				opt = $ '<input type=radio name=type>'
 				opt.change =>
 					@planCanvas.show()
 					@timeCanvas.hide()
@@ -69,7 +74,7 @@ define [
 				div.append 'Planned cost'
 				@$el.append div
 
-				opt = $ '<input type=radio name=type>'
+				opt = $ '<input type=radio name=type checked>'
 				opt.change =>
 					@timeCanvas.show()
 					@planCanvas.hide()
@@ -77,6 +82,8 @@ define [
 				div.append opt
 				div.append 'Actual time'
 				@$el.append div
+
+				opt.change()
 
 
 		types =
@@ -129,11 +136,11 @@ define [
 			]
 			'Function Scan': (node) -> [
 				'Function Scan'
-				node['Function Call']
+				truncate node['Function Call']
 				"filter: #{node['Filter']}" if node['Filter']
 			]
 			'Hash Join': (node) -> [
-				'Hash Join'
+				"Hash #{node['Join Type']} Join"
 				truncate node['Hash Cond']
 			]
 			'Index Scan': (node) -> [
@@ -156,7 +163,7 @@ define [
 				truncate node['Merge Cond']
 			]
 			'Nested Loop': (node) -> [
-				'Nested Loop'
+				"#{node['Join Type']} Join Loop"
 				truncate "filter: #{node['Join Filter']}" if node['Join Filter']
 			]
 			'Seq Scan': (node) -> [
@@ -175,6 +182,11 @@ define [
 				'Subquery Scan'
 				"alias: #{node['Alias']}"
 				truncate node['Filter']
+			]
+			'WorkTable Scan': (node) -> [
+				'WorkTable Scan'
+				"alias: #{node['Alias']}"
+				truncate "filter: #{node['Filter']}" if node['Filter']
 			]
 
 		gridWidth = 165 # 128
@@ -281,5 +293,5 @@ define [
 
 			@renderExplain plan, depth + 1, node.y for plan in node.Plans if node.Plans
 
-		setExplain: (@explain, @duration) ->
+		setExplain: (@explain, @duration, @error) ->
 			@render()

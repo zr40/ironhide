@@ -1,11 +1,9 @@
 define [
 	'cs!explainview'
-	'cs!resultview'
-	'cs!databaseview'
 	'backbone'
 	'jquery'
 	'hbs!template/queryview'
-], (ExplainView, ResultView, DatabaseView, Backbone, $, template) ->
+], (ExplainView, Backbone, $, template) ->
 
 	class QueryView extends Backbone.View
 		initialize: ->
@@ -28,23 +26,16 @@ define [
 
 			explainView = new ExplainView
 				el: @$el.find '.explain'
-			resultView = new ResultView
-				el: @$el.find '.results'
-			databaseView = new DatabaseView
-				el: @$el.find '.database'
-				socket: @options.socket
 
 			sql.focus()
 
 			execute = =>
 				@options.socket.emit 'query', codeMirror.getValue(), (result) ->
-					resultView.setResult result
-					explainView.setExplain result.explain, result.duration
+					explainView.setExplain result.explain, result.duration, result.error
 
 			plan = =>
 				@options.socket.emit 'explainOnly', codeMirror.getValue(), (result) ->
-					resultView.setResult result
-					explainView.setExplain result.explain, result.duration
+					explainView.setExplain result.explain, result.duration, result.error
 
 			codeMirror.addKeyMap {
 				'Cmd-Enter': plan,
