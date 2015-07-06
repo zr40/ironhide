@@ -161,12 +161,10 @@ define [
     textFns =
       'Aggregate': (node) -> [
         'Aggregate'
-        node['Subplan Name']
       ]
       'Bitmap Heap Scan': (node) -> [
         node['Relation Name']
         truncate node['Recheck Cond']
-        truncate "filter: #{node['Filter']}" if node['Filter']
       ]
       'Bitmap Index Scan': (node) -> [
         node['Index Name']
@@ -179,17 +177,15 @@ define [
       'Function Scan': (node) -> [
         'Function Scan'
         truncate node['Function Call']
-        "filter: #{node['Filter']}" if node['Filter']
       ]
       'Hash Join': (node) -> [
         "Hash #{node['Join Type']} Join"
         truncate node['Hash Cond']
       ]
       'Index Scan': (node) -> [
-        node['Index Name']
+        truncate node['Index Name']
         "alias: #{node['Alias']}" unless node['Alias'] is node['Relation Name']
         truncate node['Index Cond']
-        truncate "filter: #{node['Filter']}" if node['Filter']
       ]
       'Index Only Scan': (node) -> [
         node['Index Name']
@@ -204,14 +200,16 @@ define [
         "Merge#{[" #{node['Join Type']}"]} Join"
         truncate node['Merge Cond']
       ]
+      'ModifyTable': (node) -> [
+        node['Operation']
+        truncate node['Relation Name']
+      ]
       'Nested Loop': (node) -> [
         "#{node['Join Type']} Join Loop"
-        truncate "filter: #{node['Join Filter']}" if node['Join Filter']
       ]
       'Seq Scan': (node) -> [
-        node['Relation Name']
+        truncate node['Relation Name']
         "alias: #{node['Alias']}" unless node['Alias'] is node['Relation Name']
-        truncate node['Filter']
       ]
       'SetOp': (node) -> [
         node['Command']
@@ -219,20 +217,25 @@ define [
       'Sort': (node) -> [
         'Sort'
         truncate truncate_array node['Sort Key']
+        "#{node['Sort Space Type']}, #{node['Sort Method']}" if node['Sort Space Type']
       ]
       'Subquery Scan': (node) -> [
         'Subquery Scan'
         "alias: #{node['Alias']}"
-        truncate node['Filter']
       ]
       'WorkTable Scan': (node) -> [
         'WorkTable Scan'
         "alias: #{node['Alias']}"
-        truncate "filter: #{node['Filter']}" if node['Filter']
       ]
 
-    gridWidth = 165 # 128
-    gridHeight = 90 # 88
+    commonTextFn = (node, prev) -> [
+      prev.push "subplan: #{node['Subplan Name']}" if node['Subplan Name']
+      prev.push truncate "filter: #{node['Filter']}" if node['Filter']
+      prev.push truncate "filter: #{node['Join Filter']}" if node['Join Filter']
+    ]
+
+    gridWidth = 176 # 128
+    gridHeight = 96 # 88
 
     iconSize = 50
     arrowMid = (gridWidth - iconSize) / 2
@@ -294,14 +297,24 @@ define [
         value = node[item]
         value = value.join '\n' if value instanceof Array
 
-        table.append "<tr><th>#{item}<td>#{value}" unless item is 'Plans'
+        unless item is 'Plans'
+          table.append "<tr><th>#{item}<td>#{"#{value}".replace(/</g, '&lt;')}"
+
       hoverdiv.append detail
 
       text = $ '<div>'
 
       fn = textFns[node['Node Type']] || -> [node['Node Type']]
 
-      text.text fn(node).join('\n').replace(/\n\n+/g, '\n').replace(/\(public\./g, '(').replace(/\ public\./g, ' ').replace(/\npublic./g, '\n')
+      textBody = fn node
+      commonTextFn node, textBody
+      textBody = textBody.join '\n'
+      textBody = textBody.replace /\n\n+/g, '\n'
+      textBody = textBody.replace /\(public\./g, '('
+      textBody = textBody.replace /\ public\./g, ' '
+      textBody = textBody.replace /\npublic./g, '\n'
+
+      text.text textBody
       text.addClass 'label'
       text.css
         left: node.x * gridWidth
