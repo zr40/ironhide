@@ -25,7 +25,7 @@ define [
         @$el.html error_template @error
         return
 
-      @$el.html '<canvas id=planCanvas></canvas><canvas id=timeCanvas></canvas>'
+      @$el.html '<canvas id=planCanvas></canvas><canvas id=planRowsCanvas></canvas><canvas id=timeCanvas></canvas><canvas id=actualRowsCanvas></canvas>'
 
       return unless @explain
 
@@ -47,37 +47,69 @@ define [
       @planCanvas = @$el.find('#planCanvas')
       @planCanvas[0].width = x * gridWidth
       @planCanvas[0].height = y * gridHeight
-
       @planCtx = @planCanvas[0].getContext '2d'
       @planCtx.fillStyle = '#ccc'
       @planCtx.lineWidth = 0.5
 
+      @planRowsCanvas = @$el.find('#planRowsCanvas')
+      @planRowsCanvas[0].width = x * gridWidth
+      @planRowsCanvas[0].height = y * gridHeight
+      @planRowsCtx = @planRowsCanvas[0].getContext '2d'
+      @planRowsCtx.fillStyle = '#ccc'
+      @planRowsCtx.lineWidth = 0.5
+
       @timeCanvas = @$el.find('#timeCanvas')
       @timeCanvas[0].width = x * gridWidth
       @timeCanvas[0].height = y * gridHeight
-
       @timeCtx = @timeCanvas[0].getContext '2d'
       @timeCtx.fillStyle = '#ccc'
       @timeCtx.lineWidth = 0.5
 
+      @actualRowsCanvas = @$el.find('#actualRowsCanvas')
+      @actualRowsCanvas[0].width = x * gridWidth
+      @actualRowsCanvas[0].height = y * gridHeight
+      @actualRowsCtx = @actualRowsCanvas[0].getContext '2d'
+      @actualRowsCtx.fillStyle = '#ccc'
+      @actualRowsCtx.lineWidth = 0.5
+
       @renderExplain item.Plan, 1 for item in @explain
 
-      @$el.append "<div class=duration>#{Math.round(@duration * 100) / 100}</div>"
+      duration = Math.round(@duration * 100) / 100
+      @$el.append "<div class=duration>#{duration}</div>"
 
       if @explain[0].Plan['Actual Total Time']
         opt = $ '<input type=radio name=type>'
-        opt.change =>
-          @planCanvas.show()
-          @timeCanvas.hide()
-        div = $ '<label id=planRadio>'
-        div.append opt
-        div.append 'Planned cost'
-        @$el.append div
+      else
+        opt = $ '<input type=radio name=type checked>'
 
+      opt.change =>
+        @planCanvas.show()
+        @planRowsCanvas.hide()
+        @timeCanvas.hide()
+        @actualRowsCanvas.hide()
+      div = $ '<label id=planRadio>'
+      div.append opt
+      div.append 'Planned cost'
+      @$el.append div
+
+      opt = $ '<input type=radio name=type>'
+      opt.change =>
+        @planCanvas.hide()
+        @planRowsCanvas.show()
+        @timeCanvas.hide()
+        @actualRowsCanvas.hide()
+      div = $ '<label id=planRowsRadio>'
+      div.append opt
+      div.append 'Planned rows'
+      @$el.append div
+
+      if @explain[0].Plan['Actual Total Time']
         opt = $ '<input type=radio name=type checked>'
         opt.change =>
-          @timeCanvas.show()
           @planCanvas.hide()
+          @planRowsCanvas.hide()
+          @timeCanvas.show()
+          @actualRowsCanvas.hide()
         div = $ '<label id=timeRadio>'
         div.append opt
         div.append 'Actual time'
@@ -85,6 +117,16 @@ define [
 
         opt.change()
 
+        opt = $ '<input type=radio name=type>'
+        opt.change =>
+          @planCanvas.hide()
+          @planRowsCanvas.hide()
+          @timeCanvas.hide()
+          @actualRowsCanvas.show()
+        div = $ '<label id=actualRowsRadio>'
+        div.append opt
+        div.append 'Actual rows'
+        @$el.append div
 
     types =
       'Append': 'append'
@@ -220,7 +262,7 @@ define [
 
       false
 
-    renderExplain: (node, depth, parentY=0) ->
+    renderExplain: (node, depth, parentY=0, planMultiplier=1) ->
       img = $ '<img>'
 
       if node['Node Type'] is 'SetOp'
@@ -288,10 +330,26 @@ define [
         ctx.fill()
         ctx.stroke()
 
-      drawLine node['Actual Total Time'] * 16 * node['Actual Loops'], @timeCtx if node['Actual Total Time']
-      drawLine node['Total Cost'], @planCtx
+      if node['Actual Total Time']?
+        drawLine node['Actual Total Time'] * 16 * node['Actual Loops'], @timeCtx
+        drawLine node['Actual Rows'] * node['Actual Loops'], @actualRowsCtx
+      drawLine node['Total Cost'] * planMultiplier, @planCtx
+      drawLine node['Plan Rows'] * planMultiplier, @planRowsCtx
 
-      @renderExplain plan, depth + 1, node.y for plan in node.Plans if node.Plans
+      if node.Plans
+        if node['Node Type'] is 'Nested Loop'
+          innerPlanMultiplier = planMultiplier * node['Plan Rows']
+        else
+          innerPlanMultiplier = planMultiplier
+
+        for subPlan in node.Plans
+          if subPlan['Parent Relationship'] == 'Outer'
+            subPlanMultiplier = planMultiplier
+          else if subPlan['Parent Relationship'] == 'SubPlan'
+            subPlanMultiplier = planMultiplier * node['Plan Rows']
+          else
+            subPlanMultiplier = innerPlanMultiplier
+          @renderExplain subPlan, depth + 1, node.y, subPlanMultiplier
 
     setExplain: (@explain, @duration, @error) ->
       @render()
