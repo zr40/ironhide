@@ -350,18 +350,17 @@ define [
       drawLine node['Plan Rows'] * planMultiplier, @planRowsCtx
 
       if node.Plans
-        if node['Node Type'] is 'Nested Loop'
-          innerPlanMultiplier = planMultiplier * node['Plan Rows']
-        else
-          innerPlanMultiplier = planMultiplier
-
         for subPlan in node.Plans
-          if subPlan['Parent Relationship'] == 'Outer'
-            subPlanMultiplier = planMultiplier
+          if node['Node Type'] == 'Nested Loop'
+            if subPlan['Parent Relationship'] == 'Outer'
+              innerPlanMultiplier = planMultiplier * subPlan['Plan Rows']
+              subPlanMultiplier = planMultiplier
+            else
+              subPlanMultiplier = innerPlanMultiplier
           else if subPlan['Parent Relationship'] == 'SubPlan'
             subPlanMultiplier = planMultiplier * node['Plan Rows']
           else
-            subPlanMultiplier = innerPlanMultiplier
+            subPlanMultiplier = planMultiplier
           @renderExplain subPlan, depth + 1, node.y, subPlanMultiplier
 
     setExplain: (@explain, @duration, @error) ->
