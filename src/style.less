@@ -191,9 +191,11 @@ div.navbar {
     left: 0;
     right: 0;
     bottom: 0;
+    padding-bottom: 350px;
+    padding-right: 250px
   }
 
-  #timeCanvas {
+  #timeCanvas, #planRowsCanvas, #actualRowsCanvas {
     display: none;
   }
 
@@ -245,11 +247,17 @@ div.navbar {
   #planRadio {
     top: 80px;
   }
-  #timeRadio {
+  #planRowsRadio {
     top: 96px;
   }
+  #timeRadio {
+    top: 112px;
+  }
+  #actualRowsRadio {
+    top: 128px;
+  }
 
-  #planRadio, #timeRadio {
+  #planRadio, #timeRadio, #planRowsRadio, #actualRowsRadio {
     position: absolute;
     font-size: 11px;
     left: 6px;

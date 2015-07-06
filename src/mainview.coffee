@@ -1,9 +1,10 @@
 define [
   'cs!queryview'
   'cs!tablesview'
+  'cs!jsonexplainview'
   'backbone'
   'hbs!template/mainview'
-], (QueryView, TablesView, Backbone, template) ->
+], (QueryView, TablesView, JsonExplainView, Backbone, template) ->
   class MainView extends Backbone.View
     initialize: ->
       @render()
@@ -20,6 +21,13 @@ define [
         new QueryView
           el: @$el.find('.view')
           socket: @options.socket
+
+      toolbar.find('.jsonexplain').click =>
+        toolbar.find('.active').removeClass 'active'
+        toolbar.find('.jsonexplain').addClass 'active'
+
+        new JsonExplainView
+          el: @$el.find('.view')
 
       toolbar.find('.tables').click =>
         toolbar.find('.active').removeClass 'active'
