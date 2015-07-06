@@ -17,61 +17,62 @@ app.use express.bodyParser()
 
 
 io.sockets.on 'connection', (socket) ->
-	socket.on 'connect', (params, callback) ->
-		db = new pg.Client params
-		db.on 'error', (err) ->
-			callback
-				message: err.toString()
-				data: err
-		db.on 'connect', ->
-			db.query 'SET timezone=utc'
+  socket.on 'connect', (params, callback) ->
+    db = new pg.Client params
+    db.on 'error', (err) ->
+      callback
+        message: err.toString()
+        data: err
+    db.on 'connect', ->
+      db.query "SET application_name='IronHide'"
+      #db.query 'SET timezone=utc'
 
-			socket.db = db
-			callback()
+      socket.db = db
+      callback()
 
-		db.connect()
+    db.connect()
 
-	socket.on 'disconnect', ->
-		socket.db?.end()
+  socket.on 'disconnect', ->
+    socket.db?.end()
 
-	socket.on 'query', (sql, callback) ->
-		db = socket.db
+  socket.on 'query', (sql, callback) ->
+    db = socket.db
 
-		start = process.hrtime()
-		db.query "explain (analyze true, format json, verbose true) #{sql}", (err, explainResult) ->
-			duration = process.hrtime(start)
-			if err
-				callback
-					error:
-						message: err.toString()
-						data: err
-						duration: 0
-					notices: notices
-			else
-				explain = JSON.parse explainResult.rows[0]['QUERY PLAN']
-				callback
-					explain: explain
-					notices: notices
-					duration: duration[0] + (duration[1] / 1000000000)
-			notices = []
+    start = process.hrtime()
+    db.query "explain (analyze true, format json, verbose true) #{sql}", (err, explainResult) ->
+      duration = process.hrtime(start)
+      if err
+        callback
+          error:
+            message: err.toString()
+            data: err
+            duration: 0
+          notices: notices
+      else
+        explain = JSON.parse explainResult.rows[0]['QUERY PLAN']
+        callback
+          explain: explain
+          notices: notices
+          duration: duration[0] + (duration[1] / 1000000000)
+      notices = []
 
-	socket.on 'explainOnly', (sql, callback) ->
-		db = socket.db
+  socket.on 'explainOnly', (sql, callback) ->
+    db = socket.db
 
-		query = db.query "explain (format json, verbose true) #{sql}", (err, explainResult) ->
-			if err
-				callback
-					error:
-						message: err.toString()
-						data: err
-						duration: 0
-					notices: notices
-				notices = []
-			else
-				explain = JSON.parse explainResult.rows[0]['QUERY PLAN']
-				callback
-					explain: explain
-					rows: []
-					notices: notices
-					duration: 0
-				notices = []
+    query = db.query "explain (format json, verbose true) #{sql}", (err, explainResult) ->
+      if err
+        callback
+          error:
+            message: err.toString()
+            data: err
+            duration: 0
+          notices: notices
+        notices = []
+      else
+        explain = JSON.parse explainResult.rows[0]['QUERY PLAN']
+        callback
+          explain: explain
+          rows: []
+          notices: notices
+          duration: 0
+        notices = []
