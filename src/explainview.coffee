@@ -17,7 +17,7 @@ define [
       return str unless str
 
       if str.length > 32
-        return str[...32] + '…'
+        return str[...31] + '…'
       str
 
     render: ->
@@ -131,23 +131,26 @@ define [
     types =
       'Append': 'append'
       'Aggregate': 'aggregate'
-      'BitmapAnd': 'hash_setop_intersect'
+      'BitmapAnd': 'bmp_and'
+      'BitmapOr': 'bmp_or'
       'Bitmap Heap Scan': 'bmp_heap'
       'Bitmap Index Scan': 'bmp_index'
       'CTE Scan': 'cte_scan'
+      'Delete': 'delete'
       'Except All': 'hash_setop_except_all'
       'Except': 'hash_setop_except'
       'Function Scan': 'result'
       'Group': 'group'
       'Hash Join': 'join'
       'Hash': 'hash'
-      'Index Only Scan': 'index_scan'
+      'Index Only Scan': 'index_only_scan'
       'Index Scan': 'index_scan'
       'Intersect All': 'hash_setop_intersect_all'
       'Intersect': 'hash_setop_intersect'
+      'Insert': 'insert'
       'Limit': 'limit'
       'Materialize': 'materialize'
-      'Merge Append': 'merge'
+      'Merge Append': 'merge_append'
       'Merge Join': 'merge'
       'Nested Loop': 'nested'
       'Result': 'result'
@@ -155,7 +158,8 @@ define [
       'Sort': 'sort'
       'Subquery Scan': 'subplan'
       'Unique': 'unique'
-      'Values Scan': 'result'
+      'Update': 'update'
+      'Values Scan': 'values_scan'
       'WindowAgg': 'window_aggregate'
 
     textFns =
@@ -163,16 +167,15 @@ define [
         'Aggregate'
       ]
       'Bitmap Heap Scan': (node) -> [
-        node['Relation Name']
+        truncate node['Relation Name']
         truncate node['Recheck Cond']
       ]
       'Bitmap Index Scan': (node) -> [
-        node['Index Name']
+        truncate node['Index Name']
         truncate node['Index Cond']
       ]
       'CTE Scan': (node) -> [
-        node['CTE Name']
-        "alias: #{node['Alias']}" unless node['Alias'] is node['CTE Name']
+        truncate node['CTE Name']
       ]
       'Function Scan': (node) -> [
         'Function Scan'
@@ -184,12 +187,10 @@ define [
       ]
       'Index Scan': (node) -> [
         truncate node['Index Name']
-        "alias: #{node['Alias']}" unless node['Alias'] is node['Relation Name']
         truncate node['Index Cond']
       ]
       'Index Only Scan': (node) -> [
-        node['Index Name']
-        "alias: #{node['Alias']}" unless node['Alias'] is node['Relation Name']
+        truncate node['Index Name']
         truncate node['Index Cond']
       ]
       'Merge Append': (node) -> [
@@ -209,7 +210,6 @@ define [
       ]
       'Seq Scan': (node) -> [
         truncate node['Relation Name']
-        "alias: #{node['Alias']}" unless node['Alias'] is node['Relation Name']
       ]
       'SetOp': (node) -> [
         node['Command']
@@ -219,19 +219,12 @@ define [
         truncate truncate_array node['Sort Key']
         "#{node['Sort Space Type']}, #{node['Sort Method']}" if node['Sort Space Type']
       ]
-      'Subquery Scan': (node) -> [
-        'Subquery Scan'
-        "alias: #{node['Alias']}"
-      ]
-      'WorkTable Scan': (node) -> [
-        'WorkTable Scan'
-        "alias: #{node['Alias']}"
-      ]
 
     commonTextFn = (node, prev) -> [
+      prev.splice 1, 0, "alias: #{node['Alias']}" if node['Alias'] unless node['Alias'] is node['Relation Name'] or node['Alias'] is node['CTE Name']
       prev.push "subplan: #{node['Subplan Name']}" if node['Subplan Name']
-      prev.push truncate "filter: #{node['Filter']}" if node['Filter']
       prev.push truncate "filter: #{node['Join Filter']}" if node['Join Filter']
+      prev.push truncate "filter: #{node['Filter']}" if node['Filter']
     ]
 
     gridWidth = 176 # 128
