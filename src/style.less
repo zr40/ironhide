@@ -2,25 +2,12 @@
 @import 'lib/bootstrap/bootstrap.less';
 @import 'lib/codemirror.css';
 
-@navbar-height: 41px;
-
 html {
   overflow: hidden;
 }
 
 .view {
   line-height: normal; // remove bootstrap line-height
-}
-
-.navbar .brand {
-  margin-left: 0;
-  cursor: default;
-}
-
-div.navbar {
-  a {
-    cursor: pointer;
-  }
 }
 
 #connect {
@@ -44,7 +31,7 @@ div.navbar {
   position: absolute;
   left: 0;
   right: 0;
-  top: @navbar-height;
+  top: 0;
   bottom: 60%;
 
   textarea {
@@ -95,42 +82,6 @@ div.navbar {
   z-index: 3;
 }
 
-.plan {
-  position: absolute;
-  bottom: 60%;
-  right: 85px;
-  margin-right: 1em;
-  margin-bottom: 1em;
-  z-index: 3;
-}
-
-.tablelist {
-  overflow: auto;
-  font-family: Lucida Grande, Segoe UI, sans-serif;
-  font-size: 10px;
-
-  table {
-    border-collapse: collapse;
-  }
-
-  tr:nth-child(odd) {
-    background-color: #eee;
-  }
-
-  tr:first-child {
-    font-size: 12px;
-    background-color: #ccc;
-  }
-
-  th, td {
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-  }
-
-}
-
 .error {
   padding: 16px;
   font-size: 16px;
@@ -141,10 +92,6 @@ div.navbar {
   padding-left: 16px;
   margin-top: 16px;
   margin-bottom: -8px;
-}
-
-.tablelist {
-  font-size: 12px;
 }
 
 .explain {
@@ -235,16 +182,6 @@ div.navbar {
 
   }
 
-  .duration {
-    position: absolute;
-    top: 0;
-    left: 20px;
-    font-size: 10px;
-    &:after {
-      content: ' sec';
-    }
-  }
-
   #planRadio {
     top: 80px;
   }
@@ -273,4 +210,8 @@ div.navbar {
   .hover:hover .detail {
     display: block;
   }
+}
+
+.instructions {
+  margin: 1em;
 }

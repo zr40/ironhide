@@ -74,9 +74,6 @@ define [
 
       @renderExplain item.Plan, 1 for item in @explain
 
-      duration = Math.round(@duration * 100) / 100
-      @$el.append "<div class=duration>#{duration}</div>"
-
       if @explain[0].Plan['Actual Total Time']
         opt = $ '<input type=radio name=type>'
       else
@@ -356,5 +353,5 @@ define [
             subPlanMultiplier = planMultiplier
           @renderExplain subPlan, depth + 1, node.y, subPlanMultiplier
 
-    setExplain: (@explain, @duration, @error) ->
+    setExplain: (@explain, @error) ->
       @render()

@@ -22,10 +22,6 @@ define [
 
       codeMirror.addKeyMap
       executeButton = @$el.find '.execute'
-      planButton = @$el.find '.plan'
-
-      planButton.remove()
-      executeButton.text 'Render'
 
       explainView = new ExplainView
         el: @$el.find '.explain'
@@ -33,10 +29,12 @@ define [
       sql.focus()
 
       doRender = ->
-        value = JSON.parse codeMirror.getValue()
-        value = [value] unless value instanceof Array
-
-        explainView.setExplain value
+        try
+          value = JSON.parse codeMirror.getValue()
+          value = [value] unless value instanceof Array
+          explainView.setExplain value
+        catch error
+          explainView.setExplain undefined, error
 
       codeMirror.addKeyMap {
         'Cmd-Enter': doRender,

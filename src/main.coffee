@@ -1,7 +1,7 @@
 require [
-  'cs!connectview'
+  'cs!mainview'
   'jquery'
-], (ConnectView, $) ->
+], (MainView, $) ->
 
-  new ConnectView
+  new MainView
     el: $ 'div'
